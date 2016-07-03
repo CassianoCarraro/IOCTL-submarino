@@ -12,7 +12,7 @@ MODULE_DESCRIPTION("Submarino");
 
 #define DEVICE 60
 #define DEVICE_NAME "submarino"
-#define BUF_LEN 1
+#define BUF_LEN 100
 
 int init_device(void);
 void cleanup_device(void);
@@ -25,7 +25,7 @@ long device_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl
 module_init(init_device);
 module_exit(cleanup_device);
 
-static char mensagem[BUF_LEN];
+static char commands[BUF_LEN];
 
 struct file_operations fops = {
 	.read = device_read,
@@ -63,11 +63,26 @@ static ssize_t device_read(struct file *file, char __user * buffer, size_t lengt
 
 static ssize_t device_write(struct file *file, const char __user * buffer, size_t length, loff_t * offset){	
 	printk("O dispositivo %s foi escrito.\n", DEVICE_NAME);
+	printk("Len: %d", length);
 
 	return length;
 }
 
 long device_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param){
 	device_write(file, (char *)ioctl_param, 0, 0);
+
+	switch (ioctl_num) {
+		case IOCTL_UP:
+			break;
+		case IOCTL_RIGHT:
+			break;
+		case IOCTL_DOWN:
+			break;
+		case IOCTL_LEFT:
+			break;
+		default:
+			return FAILURE;
+	}
+
 	return SUCCESS;
 }
