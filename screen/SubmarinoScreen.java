@@ -1,4 +1,6 @@
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -7,7 +9,8 @@ import javax.swing.JPanel;
 
 public class SubmarinoScreen {
 	private static JFrame frame;
-	private static JLabel submarino;
+	private static JLabel submarino,lixo;
+	private static ArrayList<ArrayList<Integer>> posicoesLixo = new ArrayList<ArrayList<Integer>>();
 
 	private static native int keyListner();
 	
@@ -35,8 +38,14 @@ public class SubmarinoScreen {
 		submarino = new JLabel(submarinoImg);
 
 		submarino.setBounds(0, 0, submarinoImg.getIconWidth(), submarinoImg.getIconHeight());
+		
+		ImageIcon lixoImg = new ImageIcon("assets/lixo.png");
+		lixo = new JLabel(lixoImg);
+		lixo.setBounds(0, 0, lixoImg.getIconWidth(), lixoImg.getIconHeight());
+		
 		panel.add(submarino);
-
+		panel.add(lixo);
+		geraLixo();
 		frame.add(panel);
 	}
 
@@ -60,5 +69,24 @@ public class SubmarinoScreen {
 		}*/
 		
 		System.out.println("Tecla: " + key);
+	}
+	
+	public static void geraLixo(){
+		Random rand = new Random();
+		ArrayList<Integer> posicao = new ArrayList<Integer>();
+		int x;
+		int y;
+		
+		x = rand.nextInt(800);
+		y = rand.nextInt(600);
+		
+		posicao.add(x);
+		posicao.add(y);
+		
+		posicoesLixo.add(posicao);
+		System.out.println(posicoesLixo);
+		lixo.setLocation(x, y);
+		
+	
 	}
 }
