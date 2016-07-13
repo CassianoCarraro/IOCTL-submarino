@@ -3,12 +3,11 @@
 
 #define SUCCESS	0
 #define FAILURE	-1
+#define DEVICE_PATH "/dev/submarino"
 
 #define IOC_MAGIC 's'
 
-#define IOCTL_UP _IOW(IOC_MAGIC, 1, int)
-#define IOCTL_RIGHT _IOW(IOC_MAGIC, 2, int)
-#define IOCTL_DOWN _IOW(IOC_MAGIC, 3, int)
-#define IOCTL_LEFT _IOW(IOC_MAGIC, 4, int)
+#define IOCTL_SET_KEY _IOW(IOC_MAGIC, 1, int)
+#define IOCTL_GET_KEY _IOR(IOC_MAGIC, 2, char *)
 
 #endif

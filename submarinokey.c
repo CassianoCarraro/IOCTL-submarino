@@ -2,24 +2,18 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <ncurses.h>
 
 #include "subdriver.h"
 
-#define DEVICE_NAME "/dev/submarino"
-
 int main(int argc, char **argv) {
 	int fp, ret;
 
-	fp = open(DEVICE_NAME, O_RDWR);
-
-	if (fp < 0) {
-		perror("Não foi possível acessar o dispositivo!");
-	}
-	
 	initscr();
     cbreak();
     noecho();
+    addstr("Pressione Q para sair\n\nComandos:\n");
 
 	char key;
 	while(key != 'q') {
@@ -27,20 +21,32 @@ int main(int argc, char **argv) {
 
 		if (key == '\033') {
 			getch();
-			switch(getch()) {
-			case 'A':
-				ret = ioctl(fp, IOCTL_UP);
+			key = getch();
+
+			fp = open(DEVICE_PATH, O_RDWR);
+			if (fp < 0) {
+				perror("Não foi possível acessar o dispositivo!");
+			}
+
+			switch (key) {
+			case 65:
+				addstr("^ ");
 				break;
-			case 'B':
-				ret = ioctl(fp, IOCTL_DOWN);
+			case 68:
+				addstr("< ");
 				break;
-			case 'C':
-				ret = ioctl(fp, IOCTL_RIGHT);
+			case 66:
+				addstr("_ ");
 				break;
-			case 'D':
-				ret = ioctl(fp, IOCTL_LEFT);
+			case 67:
+				addstr("> ");
 				break;
 			}
+
+			
+			ret = ioctl(fp, IOCTL_SET_KEY, &key);
+
+			close(fp);
 		}
 	}
 	endwin();

@@ -12,7 +12,6 @@ MODULE_DESCRIPTION("Submarino");
 
 #define DEVICE 60
 #define DEVICE_NAME "submarino"
-#define BUF_LEN 100
 
 int init_device(void);
 void cleanup_device(void);
@@ -25,7 +24,7 @@ long device_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl
 module_init(init_device);
 module_exit(cleanup_device);
 
-static char commands[BUF_LEN];
+static char key;
 
 struct file_operations fops = {
 	.read = device_read,
@@ -34,7 +33,6 @@ struct file_operations fops = {
 	.release = device_release,	
 	.unlocked_ioctl = device_ioctl,
 };
-
 
 int init_device(){
 	register_chrdev(DEVICE, DEVICE_NAME, &fops);
@@ -47,7 +45,7 @@ void cleanup_device(){
 	printk("O dispositivo %s foi descarregado.\n", DEVICE_NAME);
 }
 
-static int device_open(struct inode *inode, struct file *file){
+static int device_open(struct inode *inode, struct file *file){	
 	return 0;
 }
 
@@ -56,29 +54,34 @@ static int device_release(struct inode *inode, struct file *file){
 }
 
 static ssize_t device_read(struct file *file, char __user * buffer, size_t length, loff_t * offset){
-	printk("O dispositivo %s foi lido.\n", DEVICE_NAME);
+	put_user(key, buffer);
 
-	return 0;
+	if (!key) {
+		return 0;
+	}
+	key = 0;
+
+	return 1;
 }
 
 static ssize_t device_write(struct file *file, const char __user * buffer, size_t length, loff_t * offset){	
-	printk("O dispositivo %s foi escrito.\n", DEVICE_NAME);
-	printk("Len: %d", length);
+	char keyTmp;
+	get_user(keyTmp, buffer++);
 
-	return length;
+	if (keyTmp >= 65 && keyTmp <= 68) {
+		key = keyTmp;
+	}
+
+	return 1;
 }
 
 long device_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param){
-	device_write(file, (char *)ioctl_param, 0, 0);
-
 	switch (ioctl_num) {
-		case IOCTL_UP:
+		case IOCTL_SET_KEY:
+			device_write(file, (char *)ioctl_param, 1, 0);
 			break;
-		case IOCTL_RIGHT:
-			break;
-		case IOCTL_DOWN:
-			break;
-		case IOCTL_LEFT:
+		case IOCTL_GET_KEY:
+			device_read(file, (char *)ioctl_param, 1, 0);
 			break;
 		default:
 			return FAILURE;
