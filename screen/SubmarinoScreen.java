@@ -1,6 +1,9 @@
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -19,7 +22,8 @@ public class SubmarinoScreen {
 
 	private static JFrame frame;
 	private static JLabel submarino,lixo;
-	private static ArrayList<ArrayList<Integer>> posicoesLixo = new ArrayList<ArrayList<Integer>>();
+	private static ArrayList<JLabel> posicoesLixo = new ArrayList<JLabel>();
+	private static JPanel panel;
 
 	private static native int keyListner();
 	
@@ -34,28 +38,20 @@ public class SubmarinoScreen {
 		frame.setTitle("Trabalho de Fundamentos de SO");
 
 		drawScreen();
-
 		frame.setVisible(true);
-
-		initKeyListener();
+		geraLixo();
 	}
 
 	public static void drawScreen() {
-		JPanel panel = new JPanel(null);
-		panel.setBackground(new Color(0, 175, 238));
-
+		panel = new JPanel(null);
+		panel.setBackground(new Color(255, 0, 0));
+		
 		ImageIcon submarinoImg = new ImageIcon("assets/submarino.png");
 		submarino = new JLabel(submarinoImg);
 
 		submarino.setBounds(0, 0, submarinoImg.getIconWidth(), submarinoImg.getIconHeight());
 		
-		ImageIcon lixoImg = new ImageIcon("assets/lixo.png");
-		lixo = new JLabel(lixoImg);
-		lixo.setBounds(0, 0, lixoImg.getIconWidth(), lixoImg.getIconHeight());
-		
 		panel.add(submarino);
-		panel.add(lixo);
-		geraLixo();
 		frame.add(panel);
 	}
 
@@ -89,21 +85,33 @@ public class SubmarinoScreen {
 	}
 	
 	public static void geraLixo(){
-		Random rand = new Random();
-		ArrayList<Integer> posicao = new ArrayList<Integer>();
-		int x;
-		int y;
-		
-		x = rand.nextInt(800);
-		y = rand.nextInt(600);
-		
-		posicao.add(x);
-		posicao.add(y);
-		
-		posicoesLixo.add(posicao);
-		System.out.println(posicoesLixo);
-		lixo.setLocation(x, y);
-		
-	
+		Runnable helloRunnable = new Runnable() {
+		    public void run() {
+		        Random rand = new Random();
+				ImageIcon lixoImg = new ImageIcon("assets/lixo.png");
+				int x;
+				int y;
+				JLabel lblTemp = new JLabel(lixoImg);
+				
+				x = rand.nextInt(750);
+				y = rand.nextInt(550);
+				
+				
+				
+				lblTemp.setBounds(0, 0, lixoImg.getIconWidth(), lixoImg.getIconHeight());
+				lblTemp.setLocation(x, y);
+				
+				panel.add(lblTemp);
+				posicoesLixo.add(lblTemp);
+				
+				panel.revalidate();
+	            panel.repaint();
+
+				
+		    }
+		};
+
+		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+		executor.scheduleAtFixedRate(helloRunnable, 0, 4, TimeUnit.SECONDS);
 	}
 }
