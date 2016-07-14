@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.Iterator;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -20,10 +21,11 @@ public class SubmarinoScreen {
 	private static final int SCREEN_WIDTH = 800;
 	private static final int SCREEN_HEIGHT = 600;
 
-	private static JFrame frame;
-	private static JLabel submarino,lixo;
 	private static ArrayList<JLabel> posicoesLixo = new ArrayList<JLabel>();
+	private static JFrame frame;
+	private static JLabel submarino, txtTotalLixos;
 	private static JPanel panel;
+	private static Integer totalLixos;
 
 	private static native int keyListner();
 	
@@ -39,18 +41,26 @@ public class SubmarinoScreen {
 
 		drawScreen();
 		frame.setVisible(true);
+
 		geraLixo();
+		initKeyListener();
 	}
 
 	public static void drawScreen() {
 		panel = new JPanel(null);
-		panel.setBackground(new Color(255, 0, 0));
+		panel.setBackground(new Color(0, 175, 238));
+
+		totalLixos = 0;
 		
 		ImageIcon submarinoImg = new ImageIcon("assets/submarino.png");
 		submarino = new JLabel(submarinoImg);
+		txtTotalLixos = new JLabel(totalLixos.toString());
+		txtTotalLixos.setForeground(Color.WHITE);
 
 		submarino.setBounds(0, 0, submarinoImg.getIconWidth(), submarinoImg.getIconHeight());
+		txtTotalLixos.setBounds(submarino.getLocation().x + 90, submarino.getLocation().y + 23, 50, 20);
 		
+		panel.add(txtTotalLixos);
 		panel.add(submarino);
 		frame.add(panel);
 	}
@@ -80,8 +90,9 @@ public class SubmarinoScreen {
     		x = x + MOV_SIZE;
         }
 
-		
+        txtTotalLixos.setBounds(x + 90, y + 23, 50, 20);
 		submarino.setBounds(x, y, dim.width, dim.height);
+		verificaLixo(x, y);
 	}
 	
 	public static void geraLixo(){
@@ -93,10 +104,8 @@ public class SubmarinoScreen {
 				int y;
 				JLabel lblTemp = new JLabel(lixoImg);
 				
-				x = rand.nextInt(750);
-				y = rand.nextInt(550);
-				
-				
+				x = rand.nextInt((SCREEN_WIDTH - 100) / 10) * 10;
+				y = rand.nextInt((SCREEN_HEIGHT - 100) / 10) * 10;
 				
 				lblTemp.setBounds(0, 0, lixoImg.getIconWidth(), lixoImg.getIconHeight());
 				lblTemp.setLocation(x, y);
@@ -106,12 +115,26 @@ public class SubmarinoScreen {
 				
 				panel.revalidate();
 	            panel.repaint();
-
-				
 		    }
 		};
 
 		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-		executor.scheduleAtFixedRate(helloRunnable, 0, 4, TimeUnit.SECONDS);
+		executor.scheduleAtFixedRate(helloRunnable, 0, 5, TimeUnit.SECONDS);
+	}
+
+	public static void verificaLixo(int x, int y) {
+		Iterator<JLabel> i = posicoesLixo.iterator();
+		Dimension dim = submarino.getPreferredSize();
+
+		while(i.hasNext()) {
+			JLabel lixo = i.next();
+
+			if (lixo.getLocation().x == x && lixo.getLocation().y == y) {
+				lixo.setVisible(false);
+				i.remove();
+
+				txtTotalLixos.setText((++totalLixos).toString());
+			}
+		}
 	}
 }
