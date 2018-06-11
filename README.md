@@ -1,0 +1,2 @@
+# IOCTL - Dispositivo virtual
+O objetivo deste projeto é demonstrar um sistema que permita controlar um robô submarino(simulado) que recolhe lixo no fundo do mar. A comunicação entre o sistema e o submarino é realizada através de um dispositivo virtual do tipo caractere via chamadas de sistema IOCTL.
